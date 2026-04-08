@@ -4,13 +4,13 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { randomUUID } from 'crypto';
-import type { CancellationToken, ChatRequest, ChatResponseStream, LanguageModelToolInformation, Progress } from 'vscode';
+import { lm, type CancellationToken, type ChatRequest, type ChatResponseStream, type LanguageModelToolInformation, type Progress } from 'vscode';
 import { IAuthenticationChatUpgradeService } from '../../../platform/authentication/common/authenticationUpgrade';
 import { IChatHookService } from '../../../platform/chat/common/chatHookService';
 import { ChatLocation, ChatResponse } from '../../../platform/chat/common/commonTypes';
 import { ISessionTranscriptService } from '../../../platform/chat/common/sessionTranscriptService';
 import { ConfigKey, IConfigurationService } from '../../../platform/configuration/common/configurationService';
-import { ChatEndpointFamily, IEndpointProvider } from '../../../platform/endpoint/common/endpointProvider';
+import { IEndpointProvider } from '../../../platform/endpoint/common/endpointProvider';
 import { IFileSystemService } from '../../../platform/filesystem/common/fileSystemService';
 import { IGitService } from '../../../platform/git/common/gitService';
 import { ILogService } from '../../../platform/log/common/logService';
@@ -80,23 +80,12 @@ export class ExecutionSubagentToolCallingLoop extends ToolCallingLoop<IExecution
 	 * Get the endpoint to use for the execution subagent
 	 */
 	private async getEndpoint() {
-		const modelName = this._configurationService.getConfig(ConfigKey.Advanced.ExecutionSubagentModel) as ChatEndpointFamily;
-		if (modelName) {
-			try {
-				let endpoint = await this.endpointProvider.getChatEndpoint(modelName);
-				if (!endpoint.supportsToolCalls) {
-					this._logService.warn(`[ExecutionSubagentToolCallingLoop] Configured model ${modelName} does not support tool calls. Falling back to request's endpoint.`);
-					endpoint = await this.endpointProvider.getChatEndpoint(this.options.request);
-				}
-				return endpoint;
-			}
-			catch (error) {
-				this._logService.warn(`[ExecutionSubagentToolCallingLoop] Failed to get endpoint for model ${modelName}: ${error}. Falling back to request's endpoint.`);
-				return await this.endpointProvider.getChatEndpoint(this.options.request);
-			}
-		} else {
-			return await this.endpointProvider.getChatEndpoint(this.options.request);
+		const model_name = this._configurationService.getExperimentBasedConfig(ConfigKey.Advanced.ExecutionSubagentModel, this._experimentationService);
+		const models = await lm.selectChatModels({ vendor: 'customoai', id: model_name });
+		if (models.length === 0) {
+			throw new Error(`Execution subagent model ${model_name} not found`);
 		}
+		return await this.endpointProvider.getChatEndpoint(models[0]);
 	}
 
 	protected async buildPrompt(buildpromptContext: IBuildPromptContext, progress: Progress<ChatResponseReferencePart | ChatResponseProgressPart>, token: CancellationToken): Promise<IBuildPromptResult> {
