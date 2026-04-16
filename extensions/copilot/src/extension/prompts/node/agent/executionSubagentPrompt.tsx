@@ -32,6 +32,7 @@ export class ExecutionSubagentPrompt extends PromptElement<ExecutionSubagentProm
 		return (
 			<>
 				<SystemMessage priority={1000}>
+					/no_think<br />
 					You are an AI coding research assistant that runs a series of terminal commands to perform a small execution-focused task.<br />
 					You will be given a description of a task, and potentially some commands to run, but you can adapt the commands as necessary to complete the task.<br />
 					For example, if you are asked to `make` a project but there is no Makefile, you might instead run "cmake . && make" to successfully build the code. <br />
