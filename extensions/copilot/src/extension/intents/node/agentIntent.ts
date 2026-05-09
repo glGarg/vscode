@@ -141,7 +141,35 @@ export const getAgentTools = async (accessor: ServicesAccessor, request: vscode.
 
 	allowTools[CUSTOM_TOOL_SEARCH_NAME] = isAnthropicCustomToolSearchEnabled(model, configurationService, experimentationService);
 
+	const ALLOWED_TOOL_NAMES = new Set([
+		'read_file',
+		'run_in_terminal',
+		'manage_todo_list',
+		'replace_string_in_file',
+		'grep_search',
+		'get_terminal_output',
+		'multi_replace_string_in_file',
+		'create_file',
+		'get_errors',
+		'kill_terminal',
+		'file_search',
+		'list_dir',
+		'runSubagent',
+		'send_to_terminal',
+		'fetch_webpage',
+		'memory',
+		'vscode_listCodeUsages',
+		'semantic_search',
+		'terminal_last_command',
+		'terminal_selection',
+		'task_complete',
+	]);
+
 	const tools = toolsService.getEnabledTools(request, model, tool => {
+		if (!ALLOWED_TOOL_NAMES.has(tool.name)) {
+			return false;
+		}
+
 		if (typeof allowTools[tool.name] === 'boolean') {
 			return allowTools[tool.name];
 		}
