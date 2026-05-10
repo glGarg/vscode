@@ -142,26 +142,23 @@ export const getAgentTools = async (accessor: ServicesAccessor, request: vscode.
 	allowTools[CUSTOM_TOOL_SEARCH_NAME] = isAnthropicCustomToolSearchEnabled(model, configurationService, experimentationService);
 
 	const ALLOWED_TOOL_NAMES = new Set([
-		'read_file',
-		'run_in_terminal',
-		'manage_todo_list',
-		'replace_string_in_file',
-		'grep_search',
-		'get_terminal_output',
-		'multi_replace_string_in_file',
-		'create_file',
-		'get_errors',
-		'kill_terminal',
-		'file_search',
-		'list_dir',
-		'runSubagent',
-		'send_to_terminal',
-		'fetch_webpage',
-		'memory',
-		'vscode_listCodeUsages',
-		'semantic_search',
-		'terminal_last_command',
-		'terminal_selection',
+		ToolName.ReadFile,                // read_file
+		ToolName.CoreRunInTerminal,       // run_in_terminal
+		ToolName.CoreManageTodoList,      // manage_todo_list
+		ToolName.ReplaceString,           // replace_string_in_file
+		ToolName.FindTextInFiles,         // grep_search
+		ToolName.CoreGetTerminalOutput,   // get_terminal_output
+		ToolName.MultiReplaceString,      // multi_replace_string_in_file
+		ToolName.CreateFile,              // create_file
+		ToolName.GetErrors,               // get_errors
+		ToolName.FindFiles,               // file_search
+		ToolName.ListDirectory,           // list_dir
+		ToolName.CoreRunSubagent,         // runSubagent
+		ToolName.FetchWebPage,            // fetch_webpage
+		ToolName.Memory,                  // memory
+		ToolName.Codebase,                // semantic_search
+		ToolName.CoreTerminalLastCommand, // terminal_last_command
+		ToolName.CoreTerminalSelection,   // terminal_selection
 		'task_complete',
 	]);
 
@@ -174,8 +171,7 @@ export const getAgentTools = async (accessor: ServicesAccessor, request: vscode.
 			return allowTools[tool.name];
 		}
 
-		// Must return undefined to fall back to other checks
-		return undefined;
+		return true;
 	});
 
 	if (modelSupportsSimplifiedApplyPatchInstructions(model) && configurationService.getExperimentBasedConfig(ConfigKey.Advanced.Gpt5AlternativePatch, experimentationService)) {
