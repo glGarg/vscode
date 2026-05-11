@@ -18,6 +18,8 @@ import { IExperimentationService } from '../../../platform/telemetry/common/null
 import { ITokenizerProvider } from '../../../platform/tokenizer/node/tokenizer';
 import { IInstantiationService } from '../../../util/vs/platform/instantiation/common/instantiation';
 
+import { XmlToolCallParser } from './xmlToolCallParser';
+
 function hydrateBYOKErrorMessages(response: ChatResponse): ChatResponse {
 	if (response.type === ChatFetchResponseType.Failed && response.streamError) {
 		return {
@@ -325,7 +327,83 @@ export class OpenAIEndpoint extends ChatEndpoint {
 	public override async makeChatRequest2(options: IMakeChatRequestOptions, token: CancellationToken): Promise<ChatResponse> {
 		// Apply ignoreStatefulMarker: false for initial request
 		const modifiedOptions: IMakeChatRequestOptions = { ...options, ignoreStatefulMarker: false };
-		const response = await super.makeChatRequest2(modifiedOptions, token);
+		const xmlParseState = this.modelMetadata.parseXmlToolCalls && modifiedOptions.finishedCb
+			? this._wrapFinishedCbForXmlToolCalls(modifiedOptions)
+			: undefined;
+		const response = await super.makeChatRequest2(xmlParseState?.options ?? modifiedOptions, token);
+		if (xmlParseState) {
+			await xmlParseState.flush();
+		}
 		return hydrateBYOKErrorMessages(response);
+	}
+
+	/**
+	 * Wraps the request's `finishedCb` with an {@link XmlToolCallParser} so that
+	 * `<function=...>` blocks emitted in the assistant content channel are
+	 * converted into proper `copilotToolCalls` / `beginToolCalls` deltas. The
+	 * parser is disabled the moment a native JSON tool_call delta arrives, so
+	 * we never interfere with models / requests where the upstream provider's
+	 * shape works correctly.
+	 *
+	 * Returns the modified options and a `flush` callback that should be invoked
+	 * after the stream completes to emit any trailing buffered text.
+	 */
+	private _wrapFinishedCbForXmlToolCalls(options: IMakeChatRequestOptions): {
+		options: IMakeChatRequestOptions;
+		flush: () => Promise<void>;
+	} {
+		const originalCb = options.finishedCb!;
+		const parser = new XmlToolCallParser();
+		let cleanText = '';
+		let lastIndex = 0;
+		return {
+			options: {
+				...options,
+				finishedCb: async (text, index, delta) => {
+					lastIndex = index;
+					if (!parser.isDisabled() && (delta.copilotToolCalls?.length || delta.beginToolCalls?.length)) {
+						// Native tool calls are flowing — stop trying to parse XML for the rest of the stream.
+						parser.disable();
+					}
+
+					if (!delta.text || parser.isDisabled()) {
+						if (delta.text) {
+							cleanText += delta.text;
+						}
+						// Forward the cumulative cleaned text so downstream consumers (e.g.
+						// fetchStreamSource) never see raw XML even if we toggle into the
+						// disabled state mid-stream.
+						return originalCb(cleanText, index, delta);
+					}
+
+					const out = parser.feed(delta.text);
+					cleanText += out.passThrough;
+					const beginToolCalls = out.beginToolCalls.length
+						? [...(delta.beginToolCalls ?? []), ...out.beginToolCalls]
+						: delta.beginToolCalls;
+					const copilotToolCalls = out.toolCalls.length
+						? [...(delta.copilotToolCalls ?? []), ...out.toolCalls]
+						: delta.copilotToolCalls;
+					return originalCb(cleanText, index, {
+						...delta,
+						text: out.passThrough,
+						beginToolCalls,
+						copilotToolCalls,
+					});
+				},
+			},
+			flush: async () => {
+				const out = parser.flush();
+				if (!out.passThrough && !out.beginToolCalls.length && !out.toolCalls.length) {
+					return;
+				}
+				cleanText += out.passThrough;
+				await originalCb(cleanText, lastIndex, {
+					text: out.passThrough,
+					beginToolCalls: out.beginToolCalls.length ? out.beginToolCalls : undefined,
+					copilotToolCalls: out.toolCalls.length ? out.toolCalls : undefined,
+				});
+			},
+		};
 	}
 }

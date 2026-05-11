@@ -102,6 +102,7 @@ export type IChatModelInformation = IModelAPIResponse & {
 	requestHeaders?: Readonly<Record<string, string>>;
 	zeroDataRetentionEnabled?: boolean;
 	extraBody?: Record<string, unknown>;
+	parseXmlToolCalls?: boolean;
 };
 
 export function isChatModelInformation(model: IModelAPIResponse): model is IChatModelInformation {

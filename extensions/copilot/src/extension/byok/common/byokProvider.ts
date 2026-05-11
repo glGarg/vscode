@@ -62,6 +62,7 @@ export interface BYOKModelCapabilities {
 	zeroDataRetentionEnabled?: boolean;
 	supportsReasoningEffort?: string[];
 	extraBody?: Record<string, unknown>;
+	parseXmlToolCalls?: boolean;
 }
 
 export interface BYOKModelRegistry {
@@ -123,7 +124,8 @@ export function resolveModelInfo(modelId: string, providerName: string, knownMod
 		model_picker_enabled: true,
 		supported_endpoints: knownModelInfo?.supportedEndpoints,
 		zeroDataRetentionEnabled: knownModelInfo?.zeroDataRetentionEnabled,
-		extraBody: knownModelInfo?.extraBody
+		extraBody: knownModelInfo?.extraBody,
+		parseXmlToolCalls: knownModelInfo?.parseXmlToolCalls
 	};
 	if (knownModelInfo?.requestHeaders && Object.keys(knownModelInfo.requestHeaders).length > 0) {
 		modelInfo.requestHeaders = { ...knownModelInfo.requestHeaders };
