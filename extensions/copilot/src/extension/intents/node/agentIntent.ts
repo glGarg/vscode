@@ -160,6 +160,8 @@ export const getAgentTools = async (accessor: ServicesAccessor, request: vscode.
 		ToolName.CoreTerminalLastCommand, // terminal_last_command
 		ToolName.CoreTerminalSelection,   // terminal_selection
 		ToolName.EditFile,                // insert_edit_into_file (needed for editFileInstructions system prompt block)
+		ToolName.SearchSubagent,          // search_subagent
+		ToolName.ExecutionSubagent,       // execution_subagent
 		'task_complete',
 	]);
 
