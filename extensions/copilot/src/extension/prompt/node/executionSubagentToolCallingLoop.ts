@@ -77,22 +77,10 @@ export class ExecutionSubagentToolCallingLoop extends ToolCallingLoop<IExecution
 	}
 
 	/**
-	 * Get the endpoint to use for the execution subagent
+	 * Get the endpoint to use for the execution subagent — always uses the main agent model.
 	 */
 	private async getEndpoint() {
-		const modelName = this._configurationService.getExperimentBasedConfig(ConfigKey.Advanced.ExecutionSubagentModel, this._experimentationService);
-
-		if (modelName) {
-			try {
-				return await this.endpointProvider.getChatEndpoint(modelName);
-			} catch (error) {
-				this._logService.warn(`Failed to get model ${modelName}, falling back to main agent endpoint: ${error}`);
-				return await this.endpointProvider.getChatEndpoint(this.options.request);
-			}
-		} else {
-			// No model name specified, use main agent endpoint
-			return await this.endpointProvider.getChatEndpoint(this.options.request);
-		}
+		return await this.endpointProvider.getChatEndpoint(this.options.request);
 	}
 
 	protected async buildPrompt(buildpromptContext: IBuildPromptContext, progress: Progress<ChatResponseReferencePart | ChatResponseProgressPart>, token: CancellationToken): Promise<IBuildPromptResult> {

@@ -10,8 +10,7 @@ import { IChatHookService } from '../../../platform/chat/common/chatHookService'
 import { ChatLocation, ChatResponse } from '../../../platform/chat/common/commonTypes';
 import { ISessionTranscriptService } from '../../../platform/chat/common/sessionTranscriptService';
 import { ConfigKey, IConfigurationService } from '../../../platform/configuration/common/configurationService';
-import { ChatEndpointFamily, IEndpointProvider } from '../../../platform/endpoint/common/endpointProvider';
-import { ProxyAgenticSearchEndpoint } from '../../../platform/endpoint/node/proxyAgenticSearchEndpoint';
+import { IEndpointProvider } from '../../../platform/endpoint/common/endpointProvider';
 import { IFileSystemService } from '../../../platform/filesystem/common/fileSystemService';
 import { IGitService } from '../../../platform/git/common/gitService';
 import { ILogService } from '../../../platform/log/common/logService';
@@ -80,31 +79,10 @@ export class SearchSubagentToolCallingLoop extends ToolCallingLoop<ISearchSubage
 	private static readonly DEFAULT_AGENTIC_PROXY_MODEL = 'agentic-search-v3';
 
 	/**
-	 * Get the endpoint to use for the search subagent
+	 * Get the endpoint to use for the search subagent — always uses the main agent model.
 	 */
 	private async getEndpoint() {
-		const modelName = this._configurationService.getExperimentBasedConfig(ConfigKey.Advanced.SearchSubagentModel, this._experimentationService) as ChatEndpointFamily | undefined;
-		const useAgenticProxy = this._configurationService.getExperimentBasedConfig(ConfigKey.Advanced.SearchSubagentUseAgenticProxy, this._experimentationService);
-
-		if (useAgenticProxy) {
-			// Use agentic proxy with SearchSubagentModel or default to 'agentic-search-v3'
-			const agenticProxyModel = modelName || SearchSubagentToolCallingLoop.DEFAULT_AGENTIC_PROXY_MODEL;
-			return this.instantiationService.createInstance(ProxyAgenticSearchEndpoint, agenticProxyModel);
-		}
-
-		if (modelName) {
-			try {
-				// Try to get the specified model
-				return await this.endpointProvider.getChatEndpoint(modelName);
-			} catch (error) {
-				// Model not available or doesn't support tool calls, fallback to main agent
-				this._logService.warn(`Failed to get model ${modelName}, falling back to main agent endpoint: ${error}`);
-				return await this.endpointProvider.getChatEndpoint(this.options.request);
-			}
-		} else {
-			// No model name specified, use main agent endpoint
-			return await this.endpointProvider.getChatEndpoint(this.options.request);
-		}
+		return await this.endpointProvider.getChatEndpoint(this.options.request);
 	}
 
 	protected async buildPrompt(buildPromptContext: IBuildPromptContext, progress: Progress<ChatResponseReferencePart | ChatResponseProgressPart>, token: CancellationToken): Promise<IBuildPromptResult> {
