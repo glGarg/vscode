@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { randomUUID } from 'crypto';
-import { lm, type CancellationToken, type ChatRequest, type ChatResponseStream, type LanguageModelToolInformation, type Progress } from 'vscode';
+import { type CancellationToken, type ChatRequest, type ChatResponseStream, type LanguageModelToolInformation, type Progress } from 'vscode';
 import { IAuthenticationChatUpgradeService } from '../../../platform/authentication/common/authenticationUpgrade';
 import { IChatHookService } from '../../../platform/chat/common/chatHookService';
 import { ChatLocation, ChatResponse } from '../../../platform/chat/common/commonTypes';
@@ -80,12 +80,19 @@ export class ExecutionSubagentToolCallingLoop extends ToolCallingLoop<IExecution
 	 * Get the endpoint to use for the execution subagent
 	 */
 	private async getEndpoint() {
-		const model_name = this._configurationService.getExperimentBasedConfig(ConfigKey.Advanced.ExecutionSubagentModel, this._experimentationService);
-		const models = await lm.selectChatModels({ vendor: 'customoai', id: model_name });
-		if (models.length === 0) {
-			throw new Error(`Execution subagent model ${model_name} not found`);
+		const modelName = this._configurationService.getExperimentBasedConfig(ConfigKey.Advanced.ExecutionSubagentModel, this._experimentationService);
+
+		if (modelName) {
+			try {
+				return await this.endpointProvider.getChatEndpoint(modelName);
+			} catch (error) {
+				this._logService.warn(`Failed to get model ${modelName}, falling back to main agent endpoint: ${error}`);
+				return await this.endpointProvider.getChatEndpoint(this.options.request);
+			}
+		} else {
+			// No model name specified, use main agent endpoint
+			return await this.endpointProvider.getChatEndpoint(this.options.request);
 		}
-		return await this.endpointProvider.getChatEndpoint(models[0]);
 	}
 
 	protected async buildPrompt(buildpromptContext: IBuildPromptContext, progress: Progress<ChatResponseReferencePart | ChatResponseProgressPart>, token: CancellationToken): Promise<IBuildPromptResult> {
