@@ -4,10 +4,11 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as l10n from '@vscode/l10n';
-import type * as vscode from 'vscode';
+import * as vscode from 'vscode';
 import { ChatFetchResponseType } from '../../../platform/chat/common/commonTypes';
 import { ConfigKey, IConfigurationService } from '../../../platform/configuration/common/configurationService';
 import { CapturingToken } from '../../../platform/requestLogger/common/capturingToken';
+import { ILogService } from '../../../platform/log/common/logService';
 import { IRequestLogger } from '../../../platform/requestLogger/node/requestLogger';
 import { IExperimentationService } from '../../../platform/telemetry/common/nullExperimentationService';
 import { ChatResponseStreamImpl } from '../../../util/common/chatResponseStreamImpl';
@@ -37,13 +38,38 @@ class BuilderSubagentTool implements ICopilotTool<IBuilderSubagentParams> {
 		@IInstantiationService private readonly instantiationService: IInstantiationService,
 		@IRequestLogger private readonly requestLogger: IRequestLogger,
 		@IConfigurationService private readonly configurationService: IConfigurationService,
-		@IExperimentationService private readonly experimentationService: IExperimentationService
+		@IExperimentationService private readonly experimentationService: IExperimentationService,
+		@ILogService private readonly logService: ILogService,
 	) { }
 
+	/**
+	 * If a `plan.md` file exists at the workspace root, read it and return its contents.
+	 * Used to inject the full plan text into the builder subagent's prompt regardless of
+	 * what the main agent put in the tool-call arguments. Returns `undefined` on any failure.
+	 */
+	private async _tryReadWorkspacePlanMd(): Promise<string | undefined> {
+		const folders = vscode.workspace.workspaceFolders;
+		if (!folders || folders.length === 0) {
+			return undefined;
+		}
+		const planUri = vscode.Uri.joinPath(folders[0].uri, 'plan.md');
+		try {
+			const bytes = await vscode.workspace.fs.readFile(planUri);
+			const text = new TextDecoder('utf-8').decode(bytes).trim();
+			return text.length > 0 ? text : undefined;
+		} catch (err) {
+			this.logService.debug(`BuilderSubagentTool: no plan.md at ${planUri.fsPath} (${err})`);
+			return undefined;
+		}
+	}
+
 	async invoke(options: vscode.LanguageModelToolInvocationOptions<IBuilderSubagentParams>, token: vscode.CancellationToken) {
+		const planFromFile = await this._tryReadWorkspacePlanMd();
+		const effectiveQuery = planFromFile ?? options.input.query;
+
 		const builderInstruction = [
 			'Task / Plan:',
-			`${options.input.query}`,
+			`${effectiveQuery}`,
 			'',
 		].join('\n');
 
@@ -66,7 +92,7 @@ class BuilderSubagentTool implements ICopilotTool<IBuilderSubagentParams> {
 			conversation: new Conversation(parentSessionId, [new Turn(generateUuid(), { type: 'user', message: builderInstruction })]),
 			request: request,
 			location: request.location,
-			promptText: options.input.query,
+			promptText: effectiveQuery,
 			subAgentInvocationId: subAgentInvocationId,
 			parentToolCallId: options.chatStreamToolCallId,
 		});
@@ -79,7 +105,7 @@ class BuilderSubagentTool implements ICopilotTool<IBuilderSubagentParams> {
 		// Create a new capturing token to group this builder subagent and all its nested tool calls.
 		// Pass the subAgentInvocationId so the trajectory uses this ID for explicit linking.
 		const builderSubagentToken = new CapturingToken(
-			`Builder: ${options.input.query.substring(0, 50)}${options.input.query.length > 50 ? '...' : ''}`,
+			`Builder: ${effectiveQuery.substring(0, 50)}${effectiveQuery.length > 50 ? '...' : ''}`,
 			'builder',
 			subAgentInvocationId,
 			'builder'  // subAgentName for trajectory tracking
