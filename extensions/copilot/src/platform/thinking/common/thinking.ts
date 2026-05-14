@@ -22,6 +22,9 @@ export interface RawThinkingDelta {
 	reasoning_opaque?: string;
 	reasoning_text?: string;
 
+	// OpenAI-compatible fields (e.g. Fireworks)
+	reasoning_content?: string;
+
 	// Anthropic fields
 	thinking?: string;
 	signature?: string;
