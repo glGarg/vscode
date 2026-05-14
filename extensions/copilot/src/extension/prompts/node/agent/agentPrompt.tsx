@@ -476,7 +476,7 @@ export function renderedMessageToTsxChildren(message: string | readonly Raw.Chat
 	}).filter(isDefined);
 }
 
-class UserOSPrompt extends PromptElement<BasePromptElementProps> {
+export class UserOSPrompt extends PromptElement<BasePromptElementProps> {
 	constructor(props: BasePromptElementProps, @IEnvService private readonly envService: IEnvService) {
 		super(props);
 	}
@@ -631,7 +631,7 @@ class CurrentEditorContext extends PromptElement<CurrentEditorContextProps> {
 	}
 }
 
-class WorkspaceFoldersHint extends PromptElement<BasePromptElementProps> {
+export class WorkspaceFoldersHint extends PromptElement<BasePromptElementProps> {
 	constructor(
 		props: BasePromptElementProps,
 		@IWorkspaceService private readonly workspaceService: IWorkspaceService,

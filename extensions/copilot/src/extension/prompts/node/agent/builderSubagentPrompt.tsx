@@ -3,11 +3,14 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { PromptElement, PromptSizing, SystemMessage, UserMessage } from '@vscode/prompt-tsx';
+import { PromptElement, PromptSizing, SystemMessage, TokenLimit, UserMessage } from '@vscode/prompt-tsx';
 import { GenericBasePromptElementProps } from '../../../context/node/resolvers/genericPanelIntentInvocation';
 import { CopilotToolMode } from '../../../tools/common/toolsRegistry';
 import { SafetyRules } from '../base/safetyRules';
+import { Tag } from '../base/tag';
 import { ChatToolCalls } from '../panel/toolCalling';
+import { AgentMultirootWorkspaceStructure } from '../panel/workspace/workspaceStructure';
+import { UserOSPrompt, WorkspaceFoldersHint } from './agentPrompt';
 
 export interface BuilderSubagentPromptProps extends GenericBasePromptElementProps {
 	readonly maxBuilderTurns: number;
@@ -85,6 +88,17 @@ export class BuilderSubagentPrompt extends PromptElement<BuilderSubagentPromptPr
 					Any assumptions you made when the input was ambiguous. Omit if none.<br />
 					&lt;/final_answer&gt;<br />
 				</SystemMessage>
+				<UserMessage priority={950}>
+					<Tag name='environment_info'>
+						<UserOSPrompt />
+					</Tag>
+					<Tag name='workspace_info'>
+						<TokenLimit max={2000}>
+							<WorkspaceFoldersHint />
+							<AgentMultirootWorkspaceStructure maxSize={2000} excludeDotFiles={true} />
+						</TokenLimit>
+					</Tag>
+				</UserMessage>
 				<UserMessage priority={900}>{builderInstruction}</UserMessage>
 				<ChatToolCalls
 					priority={899}
