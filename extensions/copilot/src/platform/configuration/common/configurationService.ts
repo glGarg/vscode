@@ -658,6 +658,12 @@ export namespace ConfigKey {
 		/** Maximum number of tool calls the execution subagent can make */
 		export const ExecutionSubagentToolCallLimit = defineSetting<number>('chat.executionSubagent.toolCallLimit', ConfigType.ExperimentBased, 5);
 
+		export const BuilderSubagentToolEnabled = defineSetting<boolean>('chat.builderSubagent.enabled', ConfigType.ExperimentBased, true);
+		/** Model to use for the builder subagent (customoai vendor id) */
+		export const BuilderSubagentModel = defineSetting<string>('chat.builderSubagent.model', ConfigType.ExperimentBased, '');
+		/** Maximum number of tool calls the builder subagent can make */
+		export const BuilderSubagentToolCallLimit = defineSetting<number>('chat.builderSubagent.toolCallLimit', ConfigType.ExperimentBased, 150);
+
 		export const InlineEditsTriggerOnEditorChangeAfterSeconds = defineAndMigrateExpSetting<number | undefined>('chat.advanced.inlineEdits.triggerOnEditorChangeAfterSeconds', 'chat.inlineEdits.triggerOnEditorChangeAfterSeconds', undefined);
 		export const InlineEditsNextCursorPredictionDisplayLine = defineAndMigrateExpSetting<boolean>('chat.advanced.inlineEdits.nextCursorPrediction.displayLine', 'chat.inlineEdits.nextCursorPrediction.displayLine', true);
 		export const InlineEditsNextCursorPredictionCurrentFileMaxTokens = defineAndMigrateExpSetting<number>('chat.advanced.inlineEdits.nextCursorPrediction.currentFileMaxTokens', 'chat.inlineEdits.nextCursorPrediction.currentFileMaxTokens', 3000);

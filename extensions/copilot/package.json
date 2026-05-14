@@ -202,6 +202,32 @@
 				}
 			},
 			{
+				"name": "builder_subagent",
+				"toolReferenceName": "builderSubagent",
+				"displayName": "%copilot.tools.builderSubagent.name%",
+				"icon": "$(tools)",
+				"userDescription": "%copilot.tools.builderSubagent.description%",
+				"modelDescription": "Launch an autonomous builder subagent that executes a task or plan end-to-end.\nThe builder receives a single string (a task description or a detailed plan) and runs it to completion on its own:\n1. It plans its own work by creating a todo list with the manage_todo_list tool.\n2. It iterates through the todos, marking one as in-progress, doing the work using read/edit/terminal tools, then marking it completed.\n3. It returns a thorough natural-language summary inside <final_answer> tags describing what was done for each step.\nUSE THIS WHEN:\n- The user has handed you a plan or task that needs to be implemented end-to-end.\n- You want to delegate a multi-step implementation rather than micromanaging individual tool calls.\nReturns: A summary of what was implemented, what was verified, what was blocked, and any assumptions made.\nInput fields:\n- query: The task description or full plan text for the builder to execute. Pass it verbatim, including any phases, file paths, or constraints.\n- description: Short user-visible invocation message.\nNOTE: The builder is autonomous and will NOT ask for clarification. If the input is ambiguous, the builder will make reasonable assumptions and document them in its final summary.",
+				"when": "config.github.copilot.chat.builderSubagent.enabled",
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"query": {
+							"type": "string",
+							"description": "The task description or full plan text for the builder to execute end-to-end."
+						},
+						"description": {
+							"type": "string",
+							"description": "User-visible invocation message shown while the subagent runs."
+						}
+					},
+					"required": [
+						"query",
+						"description"
+					]
+				}
+			},
+			{
 				"name": "search_subagent",
 				"toolReferenceName": "searchSubagent",
 				"displayName": "%copilot.tools.searchSubagent.name%",
@@ -1215,7 +1241,8 @@
 				"tools": [
 					"runNotebookCell",
 					"testFailure",
-					"executionSubagent"
+					"executionSubagent",
+					"builderSubagent"
 				]
 			},
 			{
@@ -4365,6 +4392,33 @@
 						"type": "number",
 						"default": 5,
 						"markdownDescription": "%github.copilot.config.executionSubagent.toolCallLimit%",
+						"tags": [
+							"advanced",
+							"experimental"
+						]
+					},
+					"github.copilot.chat.builderSubagent.enabled": {
+						"type": "boolean",
+						"default": true,
+						"markdownDescription": "%github.copilot.config.builderSubagent.enabled%",
+						"tags": [
+							"advanced",
+							"experimental"
+						]
+					},
+					"github.copilot.chat.builderSubagent.model": {
+						"type": "string",
+						"default": "",
+						"markdownDescription": "%github.copilot.config.builderSubagent.model%",
+						"tags": [
+							"advanced",
+							"experimental"
+						]
+					},
+					"github.copilot.chat.builderSubagent.toolCallLimit": {
+						"type": "number",
+						"default": 150,
+						"markdownDescription": "%github.copilot.config.builderSubagent.toolCallLimit%",
 						"tags": [
 							"advanced",
 							"experimental"

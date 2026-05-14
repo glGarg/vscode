@@ -71,6 +71,7 @@ export enum ToolName {
 	ToolSearch = 'tool_search',
 	ResolveMemoryFileUri = 'resolve_memory_file_uri',
 	ExecutionSubagent = 'execution_subagent',
+	BuilderSubagent = 'builder_subagent',
 }
 
 export enum ContributedToolName {
@@ -177,6 +178,7 @@ export const toolCategories: Record<ToolName, ToolCategory> = {
 	[ToolName.CoreRunSubagent]: ToolCategory.Core,
 	[ToolName.SearchSubagent]: ToolCategory.Core,
 	[ToolName.ExecutionSubagent]: ToolCategory.Core,
+	[ToolName.BuilderSubagent]: ToolCategory.Core,
 
 	// already enabled only when tasks are enabled
 	[ToolName.CoreRunTask]: ToolCategory.Core,
