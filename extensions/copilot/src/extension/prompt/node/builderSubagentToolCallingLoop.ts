@@ -107,8 +107,17 @@ export class BuilderSubagentToolCallingLoop extends ToolCallingLoop<IBuilderSuba
 	}
 
 	protected async getAvailableTools(): Promise<LanguageModelToolInformation[]> {
-		const endpoint = await this.getEndpoint();
-		const allTools = this.toolsService.getEnabledTools(this.options.request, endpoint);
+		// NOTE: We intentionally do NOT use `toolsService.getEnabledTools(request, endpoint)` here.
+		// That call consults the parent ChatRequest's tool-picker map and excludes any tool
+		// whose contributed name isn't explicitly set to `true` there. The four edit tools
+		// (insert_edit_into_file, replace_string_in_file, multi_replace_string_in_file,
+		// apply_patch) are represented in the picker collectively by `copilot_editFiles`
+		// (EditFilesPlaceholder); their individual contributed names are never populated as
+		// `true`, so they get stripped before our whitelist filter runs. Bypassing the picker
+		// by reading the registered tool list directly guarantees the builder sees every
+		// whitelisted tool. Downside: we lose the per-model `alternativeDefinition` / model-
+		// specific override rewrites that `getEnabledTools` applies in its `.map()` step
+		// (toolsService.ts:290-310). Acceptable for the builder for now.
 
 		// Mirrors the main agent's ALLOWED_TOOL_NAMES (agentIntent.ts) minus runSubagent (no recursion)
 		// and minus builder_subagent itself (no self-recursion).
@@ -136,7 +145,7 @@ export class BuilderSubagentToolCallingLoop extends ToolCallingLoop<IBuilderSuba
 			ToolName.ExecutionSubagent,       // execution_subagent
 		]);
 
-		return allTools.filter(tool => allowedBuilderTools.has(tool.name));
+		return this.toolsService.tools.filter(tool => allowedBuilderTools.has(tool.name));
 	}
 
 	protected async fetch({ messages, finishedCb, requestOptions, modelCapabilities }: ToolCallingLoopFetchOptions, token: CancellationToken): Promise<ChatResponse> {
