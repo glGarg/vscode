@@ -77,18 +77,18 @@ export class BuilderSubagentToolCallingLoop extends ToolCallingLoop<IBuilderSuba
 	}
 
 	/**
-	 * Get the endpoint to use for the builder subagent — currently uses the main agent model
-	 * (mirrors search/execution subagents). The customoai vendor lookup below is preserved
-	 * (commented out) for the case where the builder should run on a separately configured model.
+	 * Get the endpoint to use for the builder subagent — uses the customoai vendor lookup
+	 * to resolve the configured model. The main agent model fallback below is preserved
+	 * (commented out) for the case where the builder should mirror search/execution subagents.
 	 */
 	private async getEndpoint() {
-		return await this.endpointProvider.getChatEndpoint(this.options.request);
-		// const model_name = this._configurationService.getExperimentBasedConfig(ConfigKey.Advanced.BuilderSubagentModel, this._experimentationService);
-		// const models = await lm.selectChatModels({ vendor: 'customoai', id: model_name });
-		// if (models.length === 0) {
-		// 	throw new Error(`Builder subagent model ${model_name} not found`);
-		// }
-		// return await this.endpointProvider.getChatEndpoint(models[0]);
+		const model_name = this._configurationService.getExperimentBasedConfig(ConfigKey.Advanced.BuilderSubagentModel, this._experimentationService);
+		const models = await lm.selectChatModels({ vendor: 'customoai', id: model_name });
+		if (models.length === 0) {
+			throw new Error(`Builder subagent model ${model_name} not found`);
+		}
+		return await this.endpointProvider.getChatEndpoint(models[0]);
+		// return await this.endpointProvider.getChatEndpoint(this.options.request);
 	}
 
 	protected async buildPrompt(buildpromptContext: IBuildPromptContext, progress: Progress<ChatResponseReferencePart | ChatResponseProgressPart>, token: CancellationToken): Promise<IBuildPromptResult> {
