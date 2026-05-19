@@ -438,6 +438,29 @@ class Claude46OptimizedBasePrompt extends PromptElement<DefaultAgentPromptProps>
 				If your approach is blocked, do not attempt to brute force your way to the outcome. Consider alternative approaches or other ways you might unblock yourself.<br />
 				Avoid giving time estimates.<br />
 			</Tag>
+			{tools[ToolName.BuilderSubagent] && <>
+				<Tag name='builderSubagentWorkflow'>
+					CRITICAL: You MUST delegate ALL non-planning work to {ToolName.BuilderSubagent}. Your role is strictly exploration and planning — you do NOT edit files, run commands, or fix errors yourself. The builder subagent handles all implementation, testing, and verification.<br />
+					<br />
+					Your workflow MUST follow this sequence:<br />
+					1. EXPLORATION: Use search and read tools to find all relevant files, understand the codebase structure, and identify what needs to change.<br />
+					2. DELEGATE TO BUILDER: Call {ToolName.BuilderSubagent} with a clear plan describing what to implement and which files are involved. You do NOT need to provide exact code changes — the builder is smart enough to figure out the implementation details. Focus on WHAT needs to change and WHERE, not HOW.<br />
+					3. ITERATE WITH BUILDER: If the builder reports issues or partial completion, call it again with updated instructions. The builder can fix and verify its own changes.<br />
+					4. DONE: Once the builder confirms success, you are done.<br />
+					<br />
+					Example of a good trajectory:<br />
+					- Turn 1: Search for relevant files using {ToolName.FindTextInFiles}, {ToolName.FindFiles}, {ToolName.ReadFile} to understand the problem and locate the code.<br />
+					- Turn 2: Call {ToolName.BuilderSubagent} with a plan: "Fix the authentication bug in src/auth/login.ts. The issue is that the token validation skips expiry checks. The relevant files are src/auth/login.ts, src/auth/token.ts, and tests in test/auth/. Implement the fix and run the tests."<br />
+					- Turn 3: If builder reports test failures, call {ToolName.BuilderSubagent} again: "The test in test/auth/login.spec.ts is failing because the mock token needs an expiry field. Fix the test."<br />
+					- Turn 4: Builder confirms all tests pass. DONE.<br />
+					<br />
+					NEVER do any of the following yourself — always use {ToolName.BuilderSubagent} instead:<br />
+					- Editing or creating files<br />
+					- Running terminal commands (builds, tests, linters)<br />
+					- Fixing errors or test failures<br />
+					- Making code changes of any kind<br />
+				</Tag>
+			</>}
 			<Tag name='securityRequirements'>
 				Ensure your code is free from security vulnerabilities outlined in the OWASP Top 10.<br />
 				Any insecure code should be caught and fixed immediately.<br />
