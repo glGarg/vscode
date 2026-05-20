@@ -10,7 +10,7 @@ import { IChatHookService } from '../../../platform/chat/common/chatHookService'
 import { ChatLocation, ChatResponse } from '../../../platform/chat/common/commonTypes';
 import { ISessionTranscriptService } from '../../../platform/chat/common/sessionTranscriptService';
 import { ConfigKey, IConfigurationService } from '../../../platform/configuration/common/configurationService';
-import { IEndpointProvider } from '../../../platform/endpoint/common/endpointProvider';
+import { ChatEndpointFamily, IEndpointProvider } from '../../../platform/endpoint/common/endpointProvider';
 import { IFileSystemService } from '../../../platform/filesystem/common/fileSystemService';
 import { IGitService } from '../../../platform/git/common/gitService';
 import { ILogService } from '../../../platform/log/common/logService';
@@ -82,12 +82,18 @@ export class BuilderSubagentToolCallingLoop extends ToolCallingLoop<IBuilderSuba
 	 * (commented out) for the case where the builder should mirror search/execution subagents.
 	 */
 	private async getEndpoint() {
-		const model_name = this._configurationService.getExperimentBasedConfig(ConfigKey.Advanced.BuilderSubagentModel, this._experimentationService);
-		const models = await lm.selectChatModels({ vendor: 'customoai', id: model_name });
-		if (models.length === 0) {
-			throw new Error(`Builder subagent model ${model_name} not found`);
+		const model_name = this._configurationService.getExperimentBasedConfig(ConfigKey.Advanced.BuilderSubagentModel, this._experimentationService) as ChatEndpointFamily | undefined;
+		if (model_name) {
+			try {
+				return await this.endpointProvider.getChatEndpoint(model_name);
+			} catch (error) {
+				throw new Error(`Builder subagent model ${model_name} not found`);
+			}
 		}
-		return await this.endpointProvider.getChatEndpoint(models[0]);
+		throw new Error(`Builder subagent model not configured`);
+		// Customoai vendor lookup:
+		// const models = await lm.selectChatModels({ vendor: 'customoai', id: model_name });
+		// Main agent model fallback:
 		// return await this.endpointProvider.getChatEndpoint(this.options.request);
 	}
 
