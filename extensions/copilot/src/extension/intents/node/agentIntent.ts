@@ -145,7 +145,7 @@ export const getAgentTools = async (accessor: ServicesAccessor, request: vscode.
 		// Restore the full tool list (and add BuilderSubagent alongside) when graduating beyond
 		// builder-only testing. See Builder.md "Session isolation" section.
 		ToolName.BuilderSubagent,
-                ToolName.ReadFile,                // read_file
+                // ToolName.ReadFile,                // read_file — removed: main agent should trust builder output
                 ToolName.CoreManageTodoList,      // manage_todo_list
                 ToolName.FindTextInFiles,         // grep_search
                 ToolName.FindFiles,               // file_search
