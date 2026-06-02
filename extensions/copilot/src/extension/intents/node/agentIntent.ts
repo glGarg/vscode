@@ -141,18 +141,8 @@ export const getAgentTools = async (accessor: ServicesAccessor, request: vscode.
 	allowTools[CUSTOM_TOOL_SEARCH_NAME] = isAnthropicCustomToolSearchEnabled(model, configurationService, experimentationService);
 
 	const ALLOWED_TOOL_NAMES = new Set([
-		// v1 testing: force the main agent to delegate every task to the builder subagent.
-		// Restore the full tool list (and add BuilderSubagent alongside) when graduating beyond
-		// builder-only testing. See Builder.md "Session isolation" section.
+		// builder-only experiment: main agent can ONLY call the builder subagent.
 		ToolName.BuilderSubagent,
-                // ToolName.ReadFile,                // read_file — removed: main agent should trust builder output
-                ToolName.CoreManageTodoList,      // manage_todo_list
-                ToolName.FindTextInFiles,         // grep_search
-                ToolName.FindFiles,               // file_search
-                ToolName.ListDirectory,           // list_dir
-                ToolName.Codebase,                // semantic_search
-                ToolName.SearchSubagent,          // search_subagent
-                ToolName.CoreRunInTerminal, ToolName.ExecutionSubagent,
 	]);
 
 	const tools = toolsService.getEnabledTools(request, model, tool => {

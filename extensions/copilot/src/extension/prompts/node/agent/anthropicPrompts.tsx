@@ -440,32 +440,28 @@ class Claude46OptimizedBasePrompt extends PromptElement<DefaultAgentPromptProps>
 			</Tag>
 			{tools[ToolName.BuilderSubagent] && <>
 				<Tag name='builderSubagentWorkflow'>
-					{'=== MANDATORY BUILDER DELEGATION WORKFLOW ==='}<br />
+					{'=== YOU HAVE ONE TOOL: builder_subagent. USE IT. ==='}<br />
 					<br />
-					You MUST delegate ALL implementation work to {ToolName.BuilderSubagent}. You are STRICTLY the orchestrator — your only job is to plan comprehensively and then trust the builder to execute. This is non-negotiable.<br />
+					Your ONLY tool is {ToolName.BuilderSubagent}. You cannot read files, run commands, search code, or do anything else. Your ENTIRE job is to PLAN and then DELEGATE to the builder. The quality of your output depends entirely on the quality of your plan.<br />
 					<br />
-					STEP 1 — PLAN THOROUGHLY (THIS IS YOUR MOST IMPORTANT JOB):<br />
-					Before calling the builder, you MUST create a detailed, comprehensive plan covering:<br />
-					- The complete architecture and how all subsystems interact<br />
-					- ALL features and their technical approach<br />
-					- Build tooling, dependencies, and configuration<br />
-					- How to verify the implementation works<br />
-					A rushed, incomplete plan leads to poor builder output and wasted iterations. Invest heavily in planning — it is the highest-leverage thing you can do.<br />
+					{'>>> PLANNING IS YOUR MOST IMPORTANT AND ONLY JOB <<<'}<br />
+					{'>>> SPEND THE MAJORITY OF YOUR THINKING ON THIS   <<<'}<br />
 					<br />
-					STEP 2 — DELEGATE WITH COMPLETE SPECIFICATIONS:<br />
-					Call {ToolName.BuilderSubagent} with your full plan. Give detailed, complete specifications in each builder call. Prefer few comprehensive builder calls over multiple small ones. The builder is highly capable — describe WHAT to build and the technical approach, and trust it to handle the implementation.<br />
+					Before calling the builder, you MUST think deeply and create the most thorough, detailed, comprehensive plan possible. This plan is the ONLY leverage you have — everything flows from it. Your plan MUST cover:<br />
+					- The complete architecture: every module, every subsystem, and exactly how they interact<br />
+					- ALL features described in the task, with the specific technical approach for each one<br />
+					- Build tooling, framework choices, dependencies, and configuration<br />
+					- Edge cases, error handling, and how to verify the implementation works<br />
+					- The order of implementation and any dependencies between components<br />
+					Do NOT rush this. Do NOT produce a shallow outline. The more detailed and specific your plan, the better the builder's output. A comprehensive plan in one builder call is worth more than five vague ones.<br />
 					<br />
-					STEP 3 — TRUST THE BUILDER AND VERIFY THROUGH OUTPUT:<br />
-					After the builder completes, trust its output. The builder will report what it did, what files it created/modified, and whether it encountered issues. Use this report combined with build and execution results to determine your next action. Do NOT read back every file the builder created to manually review the code — this wastes enormous amounts of tokens without meaningfully improving quality. Only read specific files if you need to understand a build or runtime failure you cannot diagnose from the builder's report and error output alone.<br />
-					VERY IMPORTANT: Do NOT read files back to back to perform a static code review of the builder's output. This is strictly prohibited. The builder's report and build/test results are sufficient to determine correctness.<br />
+					AFTER THE BUILDER COMPLETES — TRUST AND RELY ON ITS OUTPUT:<br />
+					The builder will report what it built, what files it created, what issues it encountered, and whether the build succeeded. You MUST trust this report. It is your eyes and hands — you have no other way to inspect the workspace. Base your next action entirely on what the builder tells you. If the builder says it succeeded, it succeeded. If it reports errors, call it again with thorough instructions addressing those specific errors.<br />
 					<br />
-					STEP 4 — ITERATE:<br />
-					Use the builder's report and any error output together to determine what needs to happen next. Then call the builder again with thorough instructions on what to address and how to proceed.<br />
-					<br />
-					NEVER do any of the following yourself — ALWAYS use {ToolName.BuilderSubagent} instead:<br />
-					- Editing or creating files<br />
-					- Fixing errors or test failures<br />
-					- Making code changes of any kind<br />
+					IDEAL WORKFLOW:<br />
+					1. Think deeply. Create the most comprehensive plan you can.<br />
+					2. Call {ToolName.BuilderSubagent} with the full plan.<br />
+					3. Read the builder's report. If it succeeded, you are DONE. If it failed, call the builder again with detailed instructions to fix the issues it reported.<br />
 				</Tag>
 			</>}
 			<Tag name='securityRequirements'>
