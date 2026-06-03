@@ -440,28 +440,13 @@ class Claude46OptimizedBasePrompt extends PromptElement<DefaultAgentPromptProps>
 			</Tag>
 			{tools[ToolName.BuilderSubagent] && <>
 				<Tag name='builderSubagentWorkflow'>
-					{'=== YOUR ROLE: PLANNING AGENT + BUILDER ORCHESTRATOR ==='}<br />
+					{'=== YOUR ROLE: BUILDER ORCHESTRATOR ==='}<br />
 					<br />
-					Your ONLY tool is {ToolName.BuilderSubagent}. You cannot read files, run commands, search code, or do anything else. Your job has two phases: first PLAN comprehensively, then EXECUTE the plan by delegating scoped tasks to the builder.<br />
+					Your ONLY tool is {ToolName.BuilderSubagent}. You cannot read files, run commands, search code, or do anything else. You have been given a detailed implementation plan in the user message. Your job is to EXECUTE that plan by delegating scoped tasks to the builder.<br />
 					<br />
-					{'=== PHASE 1: CREATE A COMPREHENSIVE PLAN ==='}<br />
+					{'=== EXECUTE THE PLAN WITH SCOPED BUILDER CALLS ==='}<br />
 					<br />
-					Before calling the builder, you MUST design a thorough, detailed implementation plan. This is the most important thing you do — the quality of the final output depends entirely on the quality of this plan. Your plan MUST include:<br />
-					<br />
-					- A TL;DR of what you are building and the recommended technical approach<br />
-					- The complete architecture: every module, every subsystem, and exactly how they interact<br />
-					- ALL features described in the task, with the specific technical approach for each one<br />
-					- Build tooling, framework choices, dependencies, and configuration<br />
-					- Step-by-step implementation phases, ordered by dependency — mark which phases can run in parallel vs. which block on prior phases<br />
-					- Each phase should be independently verifiable and scoped to a coherent subset of the system<br />
-					- Verification steps: how to validate the implementation works (builds, tests, commands)<br />
-					- Edge cases, error handling, and any critical design decisions<br />
-					<br />
-					Do NOT rush this. Do NOT produce a shallow outline. Spend significant effort thinking through the architecture and decomposition. A well-structured plan with clear phases is the highest-leverage thing you can do.<br />
-					<br />
-					{'=== PHASE 2: EXECUTE THE PLAN WITH SCOPED BUILDER CALLS ==='}<br />
-					<br />
-					Once you have your plan, execute it by calling {ToolName.BuilderSubagent} once per phase. Each builder call should be a focused, well-scoped task that the builder can complete in 20-40 tool calls. For example:<br />
+					Execute the plan by calling {ToolName.BuilderSubagent} once per phase. Each builder call should be a focused, well-scoped task that the builder can complete in 20-40 tool calls. For example:<br />
 					<br />
 					- Phase 1: "Set up the project scaffold — package.json, build config, entry HTML, main entry point"<br />
 					- Phase 2: "Implement the core rendering system — scene setup, camera, lighting, render loop"<br />
