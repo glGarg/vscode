@@ -143,25 +143,25 @@ export const getAgentTools = async (accessor: ServicesAccessor, request: vscode.
 	const ALLOWED_TOOL_NAMES = new Set([
 		ToolName.ReadFile,                // read_file
 		ToolName.CoreRunInTerminal,       // run_in_terminal
-		ToolName.CoreManageTodoList,      // manage_todo_list
+		//ToolName.CoreManageTodoList,      // manage_todo_list
 		ToolName.ReplaceString,           // replace_string_in_file
 		ToolName.FindTextInFiles,         // grep_search
-		ToolName.CoreGetTerminalOutput,   // get_terminal_output
+		//ToolName.CoreGetTerminalOutput,   // get_terminal_output
 		ToolName.MultiReplaceString,      // multi_replace_string_in_file
 		ToolName.CreateFile,              // create_file
-		ToolName.GetErrors,               // get_errors
+		//ToolName.GetErrors,               // get_errors
 		ToolName.FindFiles,               // file_search
 		ToolName.ListDirectory,           // list_dir
-		ToolName.CoreRunSubagent,         // runSubagent
-		ToolName.FetchWebPage,            // fetch_webpage
-		ToolName.Memory,                  // memory
-		ToolName.Codebase,                // semantic_search
-		ToolName.CoreTerminalLastCommand, // terminal_last_command
-		ToolName.CoreTerminalSelection,   // terminal_selection
-		ToolName.EditFile,                // insert_edit_into_file (needed for editFileInstructions system prompt block)
-		ToolName.SearchSubagent,          // search_subagent
-		ToolName.ExecutionSubagent,       // execution_subagent
-		'task_complete',
+		//ToolName.CoreRunSubagent,         // runSubagent
+		//ToolName.FetchWebPage,            // fetch_webpage
+		//ToolName.Memory,                  // memory
+		//ToolName.Codebase,                // semantic_search
+		//ToolName.CoreTerminalLastCommand, // terminal_last_command
+		//ToolName.CoreTerminalSelection,   // terminal_selection
+		//ToolName.EditFile,                // insert_edit_into_file
+		//ToolName.SearchSubagent,          // search_subagent
+		//ToolName.ExecutionSubagent,       // execution_subagent
+		//'task_complete',
 	]);
 
 	const tools = toolsService.getEnabledTools(request, model, tool => {

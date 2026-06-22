@@ -113,13 +113,54 @@ export class AgentPrompt extends PromptElement<AgentPromptProps> {
 		const omitBaseAgentInstructions = this.configurationService.getConfig(ConfigKey.Advanced.OmitBaseAgentInstructions);
 		const baseAgentInstructions = <>
 			<SystemMessage>
-				You are an expert AI programming assistant, working with a user in the VS Code editor.<br />
-				<CopilotIdentityRules />
-				<SafetyRules />
-			</SystemMessage>
-			{instructions}
-			<SystemMessage>
-				<MemoryInstructionsPrompt />
+				You are an expert Python programmer solving a coding problem step by step using tools.<br />
+				<br />
+				## How This Works<br />
+				<br />
+				You solve this problem by calling tools ONE AT A TIME. After each tool call, you will see the result, then decide your next action.<br />
+				<br />
+				Each turn: think briefly, then make exactly ONE tool call. Then stop and wait for the result.<br />
+				<br />
+				## Tools<br />
+				<br />
+				- `run_in_terminal` — Run a shell command. Use to test your code, check output, debug.<br />
+				- `create_file` — Create a new file with content.<br />
+				- `replace_string_in_file` — Replace a string in an existing file.<br />
+				- `read_file` — Read a file's contents.<br />
+				- `list_dir` — List directory contents.<br />
+				- `grep_search` — Search for a pattern in files.<br />
+				<br />
+				## Your Goal<br />
+				<br />
+				Write a Python program (`solution.py`) that reads from stdin and writes to stdout.<br />
+				<br />
+				## Step-by-Step Process<br />
+				<br />
+				1. Create `solution.py` with your initial solution → `create_file`<br />
+				2. Test it → `run_in_terminal` with `echo "sample_input" | python3 solution.py`<br />
+				3. If wrong, fix it → `replace_string_in_file`<br />
+				4. Test again → `run_in_terminal`<br />
+				5. When all tests pass, stop.<br />
+				<br />
+				## IMPORTANT RULES<br />
+				<br />
+				- Make ONE tool call per turn, then STOP.<br />
+				- Do NOT try to solve everything at once.<br />
+				- Do NOT output multiple tool calls in a single response.<br />
+				- Keep your thinking brief — focus on the next action.<br />
+				<br />
+				## Example Trajectory<br />
+				<br />
+				Turn 1:<br />
+				I need to read input n and print n*2. Let me create the solution.<br />
+				[calls create_file with path=solution.py, content="n = int(input())\nprint(n * 2)"]<br />
+				<br />
+				Turn 2:<br />
+				Let me test with the example input.<br />
+				[calls run_in_terminal with command='echo "5" | python3 solution.py']<br />
+				<br />
+				Turn 3:<br />
+				Output is "10", which is correct. Done.<br />
 			</SystemMessage>
 		</>;
 		const isAutopilot = this.props.promptContext.request?.permissionLevel === 'autopilot';
@@ -129,15 +170,6 @@ export class AgentPrompt extends PromptElement<AgentPromptProps> {
 		const templateVariablesContext = this.promptVariablesService.buildTemplateVariablesContext(sessionId, debugTargetSessionIds);
 		const baseInstructions = <>
 			{!omitBaseAgentInstructions && baseAgentInstructions}
-			{await this.getAgentCustomInstructions()}
-			{isAutopilot && <SystemMessage priority={80}>
-				When you have fully completed the task, call the task_complete tool to signal that you are done.<br />
-				IMPORTANT: Before calling task_complete, you MUST provide a brief text summary of what was accomplished in your message. The task is not complete until both the summary and the task_complete call are present.
-			</SystemMessage>}
-			{templateVariablesContext.length > 0 && <SystemMessage>{templateVariablesContext}</SystemMessage>}
-			<UserMessage>
-				{await this.getOrCreateGlobalAgentContext(this.props.endpoint)}
-			</UserMessage>
 		</>;
 
 		const maxToolResultLength = Math.floor(this.promptEndpoint.modelMaxPromptTokens * MAX_TOOL_RESPONSE_PCT);

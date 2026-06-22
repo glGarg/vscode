@@ -30,61 +30,7 @@ export class ChatTitleProvider implements vscode.ChatTitleProvider {
 		token: vscode.CancellationToken,
 	): Promise<string | undefined> {
 
-		// Get the first user message directly from the context
-		// Use instanceof to properly check if the first item is a ChatRequestTurn
-		const firstRequest = context.history.find(item => item instanceof ChatRequestTurn);
-		if (!firstRequest) {
-			return '';
-		}
-
-		// Extract the parent session ID from the context's sessionResource (provided by VS Code)
-		const sessionResource = context.sessionResource;
-		const parentChatSessionId = sessionResource ? sessionResourceToId(URI.from(sessionResource)) : undefined;
-
-		const endpoint = await this.endpointProvider.getChatEndpoint('copilot-fast');
-		const { messages } = await renderPromptElement(this.instantiationService, endpoint, TitlePrompt, { userRequest: firstRequest.prompt });
-
-		const capturingToken = new CapturingToken(
-			'title',
-			undefined,
-			undefined,
-			undefined,
-			undefined,
-			parentChatSessionId,
-			'title',
-		);
-
-		const doRequest = async () => {
-			const response = await endpoint.makeChatRequest2({
-				debugName: 'title',
-				messages,
-				finishedCb: undefined,
-				location: ChatLocation.Panel,
-				userInitiatedRequest: false,
-				isConversationRequest: false,
-			}, token);
-			return response;
-		};
-
-		const response = await this.requestLogger.captureInvocation(capturingToken, doRequest);
-		if (token.isCancellationRequested) {
-			return '';
-		}
-
-		if (response.type === ChatFetchResponseType.Success) {
-			let title = response.value.trim();
-			if (title.match(/^".*"$/)) {
-				title = title.slice(1, -1);
-			}
-
-			if (title.includes('can\'t assist with that')) {
-				return undefined;
-			}
-
-			return title;
-		} else {
-			this.logService.error(`Failed to fetch conversation title because of response type (${response.type}) and reason (${response.reason})`);
-			return '';
-		}
+		// Skip title generation during automated rollouts to avoid wasting model calls
+		return 'Agent Task';
 	}
 }
