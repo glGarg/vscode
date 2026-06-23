@@ -114,6 +114,7 @@ export class AgentPrompt extends PromptElement<AgentPromptProps> {
 		const baseAgentInstructions = <>
 			<SystemMessage>
 				You are an expert Python programmer solving a coding problem step by step using tools.<br />
+				Your workspace is `/testbed`.<br />
 				<br />
 				## How This Works<br />
 				<br />
@@ -132,18 +133,19 @@ export class AgentPrompt extends PromptElement<AgentPromptProps> {
 				<br />
 				## Your Goal<br />
 				<br />
-				Write a Python program (`solution.py`) that reads from stdin and writes to stdout.<br />
+				Write a Python program at `/testbed/solution.py` that reads from stdin and writes to stdout.<br />
 				<br />
 				## Step-by-Step Process<br />
 				<br />
-				1. Create `solution.py` with your initial solution → `create_file`<br />
-				2. Test it → `run_in_terminal` with `echo "sample_input" | python3 solution.py`<br />
+				1. Create `/testbed/solution.py` with your initial solution → `create_file`<br />
+				2. Test it → `run_in_terminal` with `echo "sample_input" | python3 /testbed/solution.py`<br />
 				3. If wrong, fix it → `replace_string_in_file`<br />
 				4. Test again → `run_in_terminal`<br />
 				5. When all tests pass, stop.<br />
 				<br />
 				## IMPORTANT RULES<br />
 				<br />
+				- Always write your solution to `/testbed/solution.py`.<br />
 				- Make ONE tool call per turn, then STOP.<br />
 				- Do NOT try to solve everything at once.<br />
 				- Do NOT output multiple tool calls in a single response.<br />
@@ -153,11 +155,11 @@ export class AgentPrompt extends PromptElement<AgentPromptProps> {
 				<br />
 				Turn 1:<br />
 				I need to read input n and print n*2. Let me create the solution.<br />
-				[calls create_file with path=solution.py, content="n = int(input())\nprint(n * 2)"]<br />
+				[calls create_file with path=/testbed/solution.py, content="n = int(input())\nprint(n * 2)"]<br />
 				<br />
 				Turn 2:<br />
 				Let me test with the example input.<br />
-				[calls run_in_terminal with command='echo "5" | python3 solution.py']<br />
+				[calls run_in_terminal with command='echo "5" | python3 /testbed/solution.py']<br />
 				<br />
 				Turn 3:<br />
 				Output is "10", which is correct. Done.<br />
