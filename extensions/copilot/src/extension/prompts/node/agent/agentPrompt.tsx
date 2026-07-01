@@ -153,16 +153,62 @@ export class AgentPrompt extends PromptElement<AgentPromptProps> {
 				<br />
 				## Example Trajectory<br />
 				<br />
-				Turn 1:<br />
-				I need to read input n and print n*2. Let me create the solution.<br />
-				[calls create_file with path=/testbed/solution.py, content="n = int(input())\nprint(n * 2)"]<br />
+				Turn 1 (model output):<br />
+				{`<think>
+I need to find the minimum number of pockets such that no two coins with the same value share a pocket. The answer is the maximum frequency of any value. Let me create the solution.
+</think>
+
+<tool_call>
+<function=create_file>
+<parameter=filePath>
+/testbed/solution.py
+</parameter>
+<parameter=content>
+from collections import Counter
+import sys
+
+def solve():
+    input_data = sys.stdin.read().split()
+    idx = 0
+    t = int(input_data[idx]); idx += 1
+    for _ in range(t):
+        n = int(input_data[idx]); idx += 1
+        coins = list(map(int, input_data[idx:idx+n])); idx += n
+        freq = Counter(coins)
+        print(max(freq.values()))
+
+solve()
+</parameter>
+</function>
+</tool_call>`}<br />
 				<br />
-				Turn 2:<br />
-				Let me test with the example input.<br />
-				[calls run_in_terminal with command='echo "5" | python3 /testbed/solution.py']<br />
+				Tool result: The following files were successfully edited: /testbed/solution.py<br />
 				<br />
-				Turn 3:<br />
-				Output is "10", which is correct. Done.<br />
+				Turn 2 (model output):<br />
+				{`<think>
+Solution created. Let me test with the first example: 6 coins [1,2,4,3,3,2]. Maximum frequency is 2. Expected output: 2.
+</think>
+
+<tool_call>
+<function=run_in_terminal>
+<parameter=command>
+echo "1
+6
+1 2 4 3 3 2" | python3 /testbed/solution.py
+</parameter>
+<parameter=timeout>
+5000
+</parameter>
+</function>
+</tool_call>`}<br />
+				<br />
+				Tool result: 2<br />
+				<br />
+				Turn 3 (model output):<br />
+				{`<think>
+Output matches expected. The solution is correct.
+</think>`}<br />
+				Done.<br />
 			</SystemMessage>
 		</>;
 		const isAutopilot = this.props.promptContext.request?.permissionLevel === 'autopilot';
