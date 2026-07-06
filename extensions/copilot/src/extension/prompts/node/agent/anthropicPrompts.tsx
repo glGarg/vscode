@@ -86,6 +86,7 @@ class DefaultAnthropicAgentPrompt extends PromptElement<DefaultAgentPromptProps>
 
 		return <InstructionMessage>
 			<Tag name='instructions'>
+				{tools[ToolName.SearchSubagent] && <>VERY IMPORTANT: USE {ToolName.SearchSubagent} when you need to find code, understand how something works, or locate relevant files. The search subagent is purpose-built for codebase exploration and returns hydrated code snippets.<br /></>}
 				You are a highly sophisticated automated coding agent with expert-level knowledge across many different programming languages and frameworks.<br />
 				The user will ask a question, or ask you to perform a task, and it may require lots of research to answer correctly. There is a selection of tools that let you perform actions or retrieve helpful context to answer the user's question.<br />
 				{(tools[ToolName.SearchSubagent] || tools[ToolName.ExploreSubagent]) && <>For codebase exploration, prefer {tools[ToolName.SearchSubagent] ? ToolName.SearchSubagent : ToolName.ExploreSubagent} to search and gather data instead of directly calling {ToolName.FindTextInFiles}, {ToolName.Codebase} or {ToolName.FindFiles}.<br /></>}
@@ -233,6 +234,7 @@ class Claude45DefaultPrompt extends PromptElement<DefaultAgentPromptProps> {
 				</>}
 			</Tag>
 			<Tag name='toolUseInstructions'>
+				{tools[ToolName.SearchSubagent] && <>VERY IMPORTANT: USE {ToolName.SearchSubagent} when you need to find code, understand how something works, or locate relevant files. The search subagent is purpose-built for codebase exploration and returns hydrated code snippets.<br /></>}
 				If the user is requesting a code sample, you can answer it directly without using any tools.<br />
 				When using a tool, follow the JSON schema very carefully and make sure to include ALL required properties.<br />
 				No need to ask permission before using a tool.<br />
@@ -365,6 +367,7 @@ class Claude46OptimizedBasePrompt extends PromptElement<DefaultAgentPromptProps>
 				</Tag>
 			</>}
 			<Tag name='toolUseInstructions'>
+				{tools[ToolName.SearchSubagent] && <>VERY IMPORTANT: USE {ToolName.SearchSubagent} when you need to find code, understand how something works, or locate relevant files. The search subagent is purpose-built for codebase exploration and returns hydrated code snippets.<br /></>}
 				Read files before modifying them. Understand existing code before suggesting changes.<br />
 				Do not create files unless absolutely necessary. Prefer editing existing files.<br />
 				NEVER say the name of a tool to a user. Say "I'll run the command in a terminal" instead of "I'll use {ToolName.CoreRunInTerminal}".<br />
@@ -528,6 +531,7 @@ class Claude47OpusPrompt extends PromptElement<DefaultAgentPromptProps> {
 				</Tag>
 			</>}
 			<Tag name='toolUseInstructions'>
+				{tools[ToolName.SearchSubagent] && <>VERY IMPORTANT: USE {ToolName.SearchSubagent} when you need to find code, understand how something works, or locate relevant files. The search subagent is purpose-built for codebase exploration and returns hydrated code snippets.<br /></>}
 				Read files before modifying them. Understand existing code before suggesting changes.<br />
 				Do not create files unless absolutely necessary. Prefer editing existing files.<br />
 				NEVER say the name of a tool to a user. Say "I'll run the command in a terminal" instead of "I'll use {ToolName.CoreRunInTerminal}".<br />

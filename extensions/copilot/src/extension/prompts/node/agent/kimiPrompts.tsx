@@ -60,6 +60,7 @@ class KimiAgentPrompt extends PromptElement<DefaultAgentPromptProps> {
 			</Tag>
 
 			<Tag name='toolUseInstructions'>
+				{tools[ToolName.SearchSubagent] && <>VERY IMPORTANT: USE {ToolName.SearchSubagent} when you need to find code, understand how something works, or locate relevant files. The search subagent is purpose-built for codebase exploration and returns hydrated code snippets.<br /></>}
 				When using a tool, follow the JSON schema carefully and include all required properties.<br />
 				No need to ask permission before using a tool.<br />
 				NEVER say the name of a tool to a user. For example, instead of saying that you'll use the {ToolName.CoreRunInTerminal} tool, say "I'll run the command in a terminal".<br />

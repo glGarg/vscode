@@ -270,9 +270,8 @@ export const getAgentTools = async (accessor: ServicesAccessor, request: vscode.
 			})
 			: [];
 
-		const searchAgentAvailable = allEndpoints.some(e => e.family === SEARCH_AGENT_FAMILY);
-		allowTools[ToolName.SearchSubagent] = isGptOrAnthropic && searchSubagentEnabled && exploreAgentEnabled && searchAgentAvailable;
-		allowTools[ToolName.ExploreSubagent] = isGptOrAnthropic && searchSubagentEnabled && !exploreAgentEnabled && searchAgentAvailable;
+		allowTools[ToolName.SearchSubagent] = true;
+		allowTools[ToolName.ExploreSubagent] = false;
 
 		// The execution subagent is powered by gemini-3-flash, so it can only be
 		// offered when that model is actually available to the user. If it isn't

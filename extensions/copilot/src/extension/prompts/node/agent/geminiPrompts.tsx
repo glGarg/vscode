@@ -57,6 +57,7 @@ export class DefaultGeminiAgentPrompt extends PromptElement<DefaultAgentPromptPr
 				You don't need to read a file if it's already provided in context.
 			</Tag>
 			<Tag name='toolUseInstructions'>
+				{tools[ToolName.SearchSubagent] && <>VERY IMPORTANT: USE {ToolName.SearchSubagent} when you need to find code, understand how something works, or locate relevant files. The search subagent is purpose-built for codebase exploration and returns hydrated code snippets.<br /></>}
 				If the user is requesting a code sample, you can answer it directly without using any tools.<br />
 				When using a tool, follow the JSON schema very carefully and make sure to include ALL required properties.<br />
 				No need to ask permission before using a tool.<br />
@@ -155,6 +156,7 @@ export class HiddenModelFGeminiAgentPrompt extends PromptElement<DefaultAgentPro
 				Provide updates to the user as you work. Explain what you are doing and why before using tools. Be conversational and helpful.
 			</Tag>
 			<Tag name='toolUseInstructions'>
+				{tools[ToolName.SearchSubagent] && <>VERY IMPORTANT: USE {ToolName.SearchSubagent} when you need to find code, understand how something works, or locate relevant files. The search subagent is purpose-built for codebase exploration and returns hydrated code snippets.<br /></>}
 				If the user is requesting a code sample, you can answer it directly without using any tools.<br />
 				When using a tool, follow the JSON schema very carefully and make sure to include ALL required properties.<br />
 				No need to ask permission before using a tool.<br />

@@ -116,6 +116,7 @@ export class DefaultAgentPrompt extends PromptElement<DefaultAgentPromptProps> {
 
 		return <InstructionMessage>
 			<Tag name='instructions'>
+				{tools[ToolName.SearchSubagent] && <>VERY IMPORTANT: USE {ToolName.SearchSubagent} when you need to find code, understand how something works, or locate relevant files. The search subagent is purpose-built for codebase exploration and returns hydrated code snippets.<br /></>}
 				You are a highly sophisticated automated coding agent with expert-level knowledge across many different programming languages and frameworks.<br />
 				The user will ask a question, or ask you to perform a task, and it may require lots of research to answer correctly. There is a selection of tools that let you perform actions or retrieve helpful context to answer the user's question.<br />
 				{(tools[ToolName.SearchSubagent] || tools[ToolName.ExploreSubagent]) && <>For any context searching, use {tools[ToolName.SearchSubagent] ? ToolName.SearchSubagent : ToolName.ExploreSubagent} to search and gather data instead of directly calling {ToolName.FindTextInFiles}, {ToolName.Codebase} or {ToolName.FindFiles}.<br /></>}
@@ -133,6 +134,7 @@ export class DefaultAgentPrompt extends PromptElement<DefaultAgentPromptProps> {
 				You don't need to read a file if it's already provided in context.
 			</Tag>
 			<Tag name='toolUseInstructions'>
+				{tools[ToolName.SearchSubagent] && <>VERY IMPORTANT: USE {ToolName.SearchSubagent} when you need to find code, understand how something works, or locate relevant files. The search subagent is purpose-built for codebase exploration and returns hydrated code snippets.<br /></>}
 				If the user is requesting a code sample, you can answer it directly without using any tools.<br />
 				When using a tool, follow the JSON schema very carefully and make sure to include ALL required properties.<br />
 				No need to ask permission before using a tool.<br />
@@ -295,6 +297,7 @@ export class AlternateGPTPrompt extends PromptElement<DefaultAgentPromptProps> {
 			{this.props.codesearchMode && <CodesearchModeInstructions {...this.props} />}
 			{/* Include the rest of the existing tool instructions but maintain GPT 4.1 specific workflow */}
 			<Tag name='toolUseInstructions'>
+				{tools[ToolName.SearchSubagent] && <>VERY IMPORTANT: USE {ToolName.SearchSubagent} when you need to find code, understand how something works, or locate relevant files. The search subagent is purpose-built for codebase exploration and returns hydrated code snippets.<br /></>}
 				If the user is requesting a code sample, you can answer it directly without using any tools.<br />
 				When using a tool, follow the JSON schema very carefully and make sure to include ALL required properties.<br />
 				No need to ask permission before using a tool.<br />
