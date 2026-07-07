@@ -30,6 +30,7 @@ export class DefaultOpenAIAgentPrompt extends PromptElement<DefaultAgentPromptPr
 
 		return <InstructionMessage>
 			<Tag name='instructions'>
+				{tools[ToolName.SearchSubagent] && <>VERY IMPORTANT: USE {ToolName.SearchSubagent} when you need to find code, understand how something works, or locate relevant files. The search subagent is purpose-built for codebase exploration and returns hydrated code snippets.<br /></>}
 				You are a highly sophisticated automated coding agent with expert-level knowledge across many different programming languages and frameworks.<br />
 				The user will ask a question, or ask you to perform a task, and it may require lots of research to answer correctly. There is a selection of tools that let you perform actions or retrieve helpful context to answer the user's question.<br />
 				<DefaultOpenAIKeepGoingReminder />

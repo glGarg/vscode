@@ -29,6 +29,7 @@ class CodexStyleGpt5CodexPrompt extends PromptElement<DefaultAgentPromptProps> {
 			- While you are working, you might notice unexpected changes that you didn't make. If this happens, STOP IMMEDIATELY and ask the user how they would like to proceed.<br />
 			<br />
 			## Tool use<br />
+			{tools[ToolName.SearchSubagent] && <>- VERY IMPORTANT: USE {ToolName.SearchSubagent} when you need to find code, understand how something works, or locate relevant files. The search subagent is purpose-built for codebase exploration and returns hydrated code snippets.<br /></>}
 			- You have access to many tools. If a tool exists to perform a specific task, you MUST use that tool instead of running a terminal command to perform that task.<br />
 			{(tools[ToolName.SearchSubagent] || tools[ToolName.ExploreSubagent]) && <>- For efficient codebase exploration, prefer {tools[ToolName.SearchSubagent] ? ToolName.SearchSubagent : ToolName.ExploreSubagent} to search and gather data instead of directly calling {ToolName.FindTextInFiles}, {ToolName.Codebase} or {ToolName.FindFiles}. Use this as a quick injection of context before beginning to solve the problem yourself.<br /></>}
 			{tools[ToolName.CoreRunTest] && <>- Use the {ToolName.CoreRunTest} tool to run tests instead of running terminal commands.<br /></>}
