@@ -141,6 +141,8 @@ export type IChatModelInformation = IModelAPIResponse & {
 	 * Chat Completions → top-level `reasoning_effort`).
 	 */
 	reasoningEffortFormat?: 'chat-completions' | 'responses';
+	/** BYOK-only opaque fields merged directly into the outgoing request body (e.g. Fireworks' `thinking: { type: 'disabled' }`). */
+	extraBody?: Record<string, unknown>;
 };
 
 export function isChatModelInformation(model: IModelAPIResponse): model is IChatModelInformation {

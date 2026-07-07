@@ -4,12 +4,12 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { randomUUID } from 'crypto';
-import type { CancellationToken, ChatRequest, ChatResponseStream, LanguageModelToolInformation, Progress } from 'vscode';
+import { lm, type CancellationToken, type ChatRequest, type ChatResponseStream, type LanguageModelToolInformation, type Progress } from 'vscode';
 import { IAuthenticationChatUpgradeService } from '../../../platform/authentication/common/authenticationUpgrade';
 import { IChatHookService } from '../../../platform/chat/common/chatHookService';
 import { ChatFetchResponseType, ChatLocation, ChatResponse } from '../../../platform/chat/common/commonTypes';
 import { ISessionTranscriptService } from '../../../platform/chat/common/sessionTranscriptService';
-import { IConfigurationService } from '../../../platform/configuration/common/configurationService';
+import { ConfigKey, IConfigurationService } from '../../../platform/configuration/common/configurationService';
 import { IEndpointProvider } from '../../../platform/endpoint/common/endpointProvider';
 import { IFileSystemService } from '../../../platform/filesystem/common/fileSystemService';
 import { IGitService } from '../../../platform/git/common/gitService';
@@ -96,8 +96,12 @@ export class SearchSubagentToolCallingLoop extends ToolCallingLoop<ISearchSubage
 	 * Get the endpoint to use for the search subagent
 	 */
 	private async getEndpoint() {
-		// Always use the main agent's own endpoint/model for the search subagent.
-		return await this.endpointProvider.getChatEndpoint(this.options.request);
+		const modelName = this._configurationService.getExperimentBasedConfig(ConfigKey.Advanced.SearchSubagentModel, this._experimentationService);
+		const models = await lm.selectChatModels({ vendor: 'customoai', id: modelName });
+		if (models.length === 0) {
+			throw new Error(`Search subagent model ${modelName} not found`);
+		}
+		return await this.endpointProvider.getChatEndpoint(models[0]);
 	}
 
 	protected async buildPrompt(buildPromptContext: IBuildPromptContext, progress: Progress<ChatResponseReferencePart | ChatResponseProgressPart>, token: CancellationToken): Promise<IBuildPromptResult> {

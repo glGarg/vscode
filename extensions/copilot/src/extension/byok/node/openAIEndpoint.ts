@@ -385,6 +385,10 @@ export class OpenAIEndpoint extends ChatEndpoint {
 			if (!this.useResponsesApi && !this.useMessagesApi && body.stream) {
 				body['stream_options'] = { 'include_usage': true };
 			}
+			// Merge extraBody fields (e.g. thinking: {type: "disabled"} for Fireworks)
+			if (this.modelMetadata.extraBody) {
+				Object.assign(body, this.modelMetadata.extraBody);
+			}
 		}
 	}
 
