@@ -333,12 +333,14 @@ export class OpenAIEndpoint extends ChatEndpoint {
 	private _applyReasoningEffort(body: IEndpointBody, options: ICreateEndpointBodyOptions): void {
 		const supports = this.supportsReasoningEffort;
 		if (!supports?.length) {
+			this.logService.info(`[OpenAIEndpoint] _applyReasoningEffort: no supportsReasoningEffort on model '${this.modelMetadata.id}', skipping`);
 			return;
 		}
 		const format = this.modelMetadata.reasoningEffortFormat
 			?? (this.useResponsesApi ? 'responses' : this.useMessagesApi ? 'messages' : 'chat-completions');
 		const override = this._configurationService.getConfig(ConfigKey.Advanced.ReasoningEffortOverride);
 		const requested = override || options.modelCapabilities?.reasoningEffort || body.reasoning?.effort || body.reasoning_effort || body.output_config?.effort || this.modelMetadata.defaultReasoningEffort;
+		this.logService.info(`[OpenAIEndpoint] _applyReasoningEffort: model='${this.modelMetadata.id}' format='${format}' override='${override}' optionsEffort='${options.modelCapabilities?.reasoningEffort}' bodyEffort='${body.reasoning_effort}' defaultEffort='${this.modelMetadata.defaultReasoningEffort}' requested='${requested}' supports=${JSON.stringify(supports)}`);
 		const effort = requested && supports.includes(requested) ? requested : undefined;
 		// Scrub any pre-populated effort first so unsupported values (e.g. the hard-coded `medium` default
 		// from `createResponsesRequestBody`) cannot leak through, then write the resolved value into the
@@ -361,6 +363,9 @@ export class OpenAIEndpoint extends ChatEndpoint {
 			} else {
 				body.reasoning_effort = effort;
 			}
+			this.logService.info(`[OpenAIEndpoint] _applyReasoningEffort: SET effort='${effort}' format='${format}' → body.reasoning_effort='${body.reasoning_effort}' body.reasoning=${JSON.stringify(body.reasoning)} body.output_config=${JSON.stringify(body.output_config)}`);
+		} else {
+			this.logService.info(`[OpenAIEndpoint] _applyReasoningEffort: NO effort resolved for model '${this.modelMetadata.id}'`);
 		}
 	}
 

@@ -67,6 +67,7 @@ interface _CustomOAIModelConfig {
 	zeroDataRetentionEnabled?: boolean;
 	supportsReasoningEffort?: string[];
 	reasoningEffortFormat?: 'chat-completions' | 'responses' | 'messages';
+	defaultReasoningEffort?: string;
 }
 
 export interface CustomOAIModelConfig extends _CustomOAIModelConfig {
@@ -151,9 +152,11 @@ export abstract class AbstractCustomOAIBYOKModelProvider extends AbstractOpenAIC
 			requestHeaders: modelConfiguration?.requestHeaders,
 			zeroDataRetentionEnabled: modelConfiguration?.zeroDataRetentionEnabled,
 			supportsReasoningEffort: modelConfiguration?.supportsReasoningEffort,
-			reasoningEffortFormat: modelConfiguration?.reasoningEffortFormat
+			reasoningEffortFormat: modelConfiguration?.reasoningEffortFormat,
+			defaultReasoningEffort: modelConfiguration?.defaultReasoningEffort
 		};
 		const modelInfo = resolveModelInfo(model.id, this._name, undefined, modelCapabilities);
+		this._logService.info(`[CustomOAI] createOpenAIEndPoint: model='${model.id}' defaultReasoningEffort='${modelCapabilities.defaultReasoningEffort}' supportsReasoningEffort=${JSON.stringify(modelCapabilities.supportsReasoningEffort)} modelInfo.defaultReasoningEffort='${modelInfo.defaultReasoningEffort}'`);
 		if (modelCapabilities?.url?.includes('/responses')) {
 			modelInfo.supported_endpoints = [
 				ModelSupportedEndpoint.ChatCompletions,
