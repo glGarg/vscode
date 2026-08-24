@@ -160,6 +160,7 @@ export type IChatModelInformation = IModelAPIResponse & {
 	 * Anthropic Messages API → `output_config.effort`, Chat Completions → top-level `reasoning_effort`).
 	 */
 	reasoningEffortFormat?: 'chat-completions' | 'responses' | 'messages';
+	defaultReasoningEffort?: string;
 };
 
 export function isChatModelInformation(model: IModelAPIResponse): model is IChatModelInformation {

@@ -338,7 +338,7 @@ export class OpenAIEndpoint extends ChatEndpoint {
 		const format = this.modelMetadata.reasoningEffortFormat
 			?? (this.useResponsesApi ? 'responses' : this.useMessagesApi ? 'messages' : 'chat-completions');
 		const override = this._configurationService.getConfig(ConfigKey.Advanced.ReasoningEffortOverride);
-		const requested = override || options.modelCapabilities?.reasoningEffort || body.reasoning?.effort || body.reasoning_effort || body.output_config?.effort;
+		const requested = override || options.modelCapabilities?.reasoningEffort || body.reasoning?.effort || body.reasoning_effort || body.output_config?.effort || this.modelMetadata.defaultReasoningEffort;
 		const effort = requested && supports.includes(requested) ? requested : undefined;
 		// Scrub any pre-populated effort first so unsupported values (e.g. the hard-coded `medium` default
 		// from `createResponsesRequestBody`) cannot leak through, then write the resolved value into the

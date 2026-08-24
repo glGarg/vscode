@@ -241,7 +241,6 @@ export const getAgentTools = async (accessor: ServicesAccessor, request: vscode.
 	// turn (e.g. when the GitHub auth provider is unavailable). Keep it off
 	// there. See https://github.com/microsoft/vscode/issues/322525.
 	if (!isCAPIEndpoint(model)) {
-		allowTools[ToolName.SearchSubagent] = false;
 		allowTools[ToolName.ExploreSubagent] = false;
 		allowTools[ToolName.ExecutionSubagent] = false;
 		allowTools[ToolName.Codebase] = false;
@@ -265,6 +264,9 @@ export const getAgentTools = async (accessor: ServicesAccessor, request: vscode.
 
 		allowTools[ToolName.ExecutionSubagent] = executionSubagentEnabled;
 	}
+
+	// Always enable search subagent regardless of endpoint type
+	allowTools[ToolName.SearchSubagent] = true;
 
 	const skillToolEnabled = configurationService.getExperimentBasedConfig(ConfigKey.Advanced.SkillToolEnabled, experimentationService);
 	allowTools[ToolName.Skill] = skillToolEnabled;

@@ -176,7 +176,8 @@ export function resolveModelInfo(modelId: string, providerName: string, knownMod
 		supported_endpoints: knownModelInfo?.supportedEndpoints,
 		zeroDataRetentionEnabled: knownModelInfo?.zeroDataRetentionEnabled,
 		modelOptions: knownModelInfo?.modelOptions,
-		reasoningEffortFormat: knownModelInfo?.reasoningEffortFormat
+		reasoningEffortFormat: knownModelInfo?.reasoningEffortFormat,
+		defaultReasoningEffort: knownModelInfo?.defaultReasoningEffort
 	};
 	if (knownModelInfo?.requestHeaders && Object.keys(knownModelInfo.requestHeaders).length > 0) {
 		modelInfo.requestHeaders = { ...knownModelInfo.requestHeaders };
